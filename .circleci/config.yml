@@ -200,12 +200,9 @@ jobs:
        fingerprints: ["52:84:9d:2f:f2:86:be:1b:d7:8d:63:57:6d:7b:0d:42"]
     - attach_workspace:
         at: ~/
-    - run:
-      name: Install Dependencies
-      command:  |
-        - install_ansible
-        - install_awscli
-        yum install -y tar gzip        
+
+    - install_ansible
+    - install_awscli
     - run:
        name: Run Configure Server Ansible play
        command: |
