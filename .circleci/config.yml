@@ -292,12 +292,13 @@ jobs:
       # Checkout code from git
       - checkout
       - install_awscli
-      - install_nodejs
 
       - run:
           name: Install tar and gzip
           command: |
             yum install -y tar gzip
+            cd frontend
+            npm install
                 
       - run:
           name: Get backend url
