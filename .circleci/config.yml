@@ -353,8 +353,6 @@ jobs:
       - checkout
       - install_awscli
       - install_nodejs
-      # Checkout code from git
-      - checkout
 
       - run:
           name: Get backend url
