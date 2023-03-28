@@ -20,6 +20,24 @@ commands:
   
             # Delete backend stack
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID >>
+
+  install_awscli:
+  description: Install AWS CLI v2
+  steps:
+    - run:
+        name: Install AWS CLI v2
+        command: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install
+          
+  install_ansible:
+    description: Install Ansible
+    steps:
+      - run:
+          name: Install Ansible
+          command: |
+            python3 -m pip install --user ansible
       
 orbs:
   slack: circleci/slack@4.1
@@ -200,7 +218,6 @@ jobs:
        fingerprints: ["52:84:9d:2f:f2:86:be:1b:d7:8d:63:57:6d:7b:0d:42"]
     - attach_workspace:
         at: ~/
-
     - install_ansible
     - install_awscli
     - run:
@@ -209,7 +226,6 @@ jobs:
          cd .circleci/ansible
          cat inventory.txt
          ansible-playbook -i inventory.txt configure-server.yml
-         
     - destroy-environment
 
           
