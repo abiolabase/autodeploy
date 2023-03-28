@@ -348,6 +348,7 @@ jobs:
 
   smoke-test:
     docker:
+      # Docker image here that supports AWS CLI
       - image: cimg/base:stable
     steps:
       - checkout
