@@ -86,9 +86,10 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-deps-{{ checksum "frontend/package-lock.json" }}
       - run:
-          name: Build front-end
+          name: Build frontend
           command: |
             # Your code here
             cd frontend
@@ -96,7 +97,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-deps-{{ checksum "frontend/package-lock.json" }}
           
   build-backend:
     docker:
@@ -104,9 +105,11 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys:
+            - backend-deps-{{ checksum "backend/package-lock.json" }}
+             
       - run:
-          name: Back-end build
+          name: Backend build
           command: |
              # Your code here
              cd backend
@@ -114,7 +117,7 @@ jobs:
              npm run build
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-deps-{{ checksum "backend/package-lock.json" }}
           
   test-frontend:
     docker:
@@ -126,9 +129,10 @@ jobs:
       # Your job code here
       - checkout
       - restore_cache:
-          keys: [frontend-test]
+          keys:
+            - frontend-deps-{{ checksum "frontend/package-lock.json" }}
       - run:
-          name: Front-end test
+          name: Frontend test
           command: |
             # Your code here
             cd frontend
@@ -136,7 +140,7 @@ jobs:
             npm run test
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-test
+          key: frontend-deps-{{ checksum "frontend/package-lock.json" }}
                 
   test-backend:
     docker:
@@ -148,9 +152,10 @@ jobs:
       # Your job code here
       - checkout
       - restore_cache:
-          keys: [backend-test]
+          keys: 
+            - backend-deps-{{ checksum "backend/package-lock.json" }}
       - run:
-          name: Back-end test
+          name: Backend test
           command: |
              # Your code here
              cd backend
@@ -158,7 +163,7 @@ jobs:
              npm run test
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-test
+          key: backend-deps-{{ checksum "backend/package-lock.json" }}
           
   scan-frontend:
     docker:
@@ -170,18 +175,21 @@ jobs:
       # Your job code here
       - checkout
       - restore_cache:
-          keys: [frontend-scan]
+          keys:
+            - frontend-deps-{{ checksum "frontend/package-lock.json" }}
       - run:
-          name: Front-end scan
+          name: Frontend scan
           command: |
             # Your code here
             cd frontend
             npm install
             # npm install oauth-sign@^0.9.0
+            #Add as many of this command to force-fix any remaining critical vulnerabilities
             npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-scan      
+          key: frontend-deps-{{ checksum "frontend/package-lock.json" }}      
 
   scan-backend:
     docker:
@@ -193,17 +201,21 @@ jobs:
       # Your job code here
       - checkout
       - restore_cache:
-          keys: [backend-scan]
+          keys: 
+            - backend-deps-{{ checksum "backend/package-lock.json" }}
       - run:
           name: Back-end scan
           command: |
             cd backend
             npm install
             # npm install oauth-sign@^0.9.0
+            #Add as many of this command to force-fix any remaining critical vulnerabilities
             npm audit fix --audit-level=critical --force
+            npm audit fix --force --audit-level=critical
+            npm audit --audit-level=critical
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-scan
+          key: backend-deps-{{ checksum "backend/package-lock.json" }}
           
   deploy-infrastructure:
     docker:
@@ -217,7 +229,7 @@ jobs:
           command: |
             yum install -y tar gzip
       - run:
-          name: Ensure back-end infrastructure exists
+          name: Ensure backend infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
@@ -225,7 +237,7 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
-          name: Ensure front-end infrastructure exist
+          name: Ensure frontend infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
