@@ -77,6 +77,8 @@ commands:
             python3 -m pip install --user ansible
             
   notify_on_failure:
+      docker:
+      - image: cimg/base:stable
       steps:
       - slack/notify:
           event: fail
@@ -557,5 +559,4 @@ workflows:
       - cleanup:
           requires: [cloudfront-update]
       - notify_on_success:
-          requires:
-            - [cleanup]
+          requires: [cleanup]
