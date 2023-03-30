@@ -186,7 +186,6 @@ jobs:
             # npm install oauth-sign@^0.9.0
             #Add as many of this command to force-fix any remaining critical vulnerabilities
             npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-deps-{{ checksum "frontend/package-lock.json" }}      
