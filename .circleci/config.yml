@@ -82,15 +82,7 @@ commands:
           event: fail
           channel: "@Abiola Ajibowu"
           template: basic_fail_1
-          
-  notify_on_success:
-      steps:
-      - slack/notify:
-          event: pass
-          channel: "@Abiola Ajibowu"
-          template: success_tagged_deployment_1
 
-  
 orbs: 
   slack: circleci/slack@4.10.1
 
@@ -520,7 +512,14 @@ jobs:
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
 
-
+  notify_on_success:
+      docker:
+        - image: cimg/base:stable
+      steps:
+        - slack/notify:
+            event: pass
+            channel: "@Abiola Ajibowu"
+            template: success_tagged_deployment_1
 
 workflows:
   default:
@@ -554,4 +553,5 @@ workflows:
           requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
-          - notify_on_success
+        - notify_on_success:
+            requires: [cleanup]
